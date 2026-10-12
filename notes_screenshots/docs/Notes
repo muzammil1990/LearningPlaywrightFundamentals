@@ -1,0 +1,29 @@
+Playwright Commands
+Inside that directory, you can run several commands:
+
+  npx playwright test
+    Runs the end-to-end tests.
+
+  npx playwright test --ui
+    Starts the interactive UI mode.
+
+  npx playwright test --project=chromium
+    Runs the tests only on Desktop Chrome.
+
+  npx playwright test <filename>
+    Runs the tests in a specific file.
+
+  npx playwright test --debug
+    Runs the tests in debug mode. | opens a separate debug window
+
+  npx playwright codegen
+    Auto generate tests with Codegen.
+
+  npx playwright test <name of file to run> //npx = command is used to run the command 
+    runs the  example.spec.ts in headless mode by default
+
+  npx playwright test example.spec.ts --headed
+    runs the single testfile in headed mode
+
+  npx playwright test --headed
+    runs all the tests/testfile in headed mode
