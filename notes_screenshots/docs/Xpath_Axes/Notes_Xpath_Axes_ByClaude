@@ -1,0 +1,85 @@
+<html>
+ <body>
+  <header>...</header>
+  <main>
+   <h2>Menu</h2>
+   <ul>
+     <li>Home</li>              <!-- li[1] -->
+     <li>                       <!-- li[2]  START HERE -->
+        <span>...</span>
+        <a>...</a>
+     </li>                      <!-- li[2] ends here -->
+     <li>Contact</li>           <!-- li[3] -->
+   </ul>
+   <p>Note</p>
+  </main>
+  <footer>...</footer>
+ </body>
+</html>
+
+The one idea behind all axes
+----------------------------
+An XPath always starts from a context node, the element you’re currently standing on. An axis is the 
+direction you walk from that node.
+
+The 11 axes in four groups
+
+Group	         Axes	                                 |    Mental picture
+
+Up	             parent, ancestor, ancestor-or-self 	 |   Climb toward html
+Down	         child, descendant, descendant-or-self	 |   Dig into the subtree
+Sideways	     preceding-sibling, following-sibling	 |   Look at siblings under the same parent
+Document order	 preceding, following	                 |   Everything earlier or later in the page source
+
+self is just the node you’re standing on.
+
+
+The confusing pairs
+--------------------
+
+These are the pairs that trip most people up. Try each in the diagram with li[2] as the context(starting element):
+
+parent vs ancestor: parent is exactly one step up (ul). ancestor is the whole chain up (ul, main, body, html).
+child vs descendant: child is one level down (span, a). descendant is every depth. Here they match because li[2] has no grandchildren, so click ul and compare.
+following-sibling vs following: siblings share the same parent, so you get only li[3]. following is everything later in the document, so you get li[3], p, and footer. It skips descendants of the context node, which is why span and a are not included.
+preceding vs preceding-sibling: the same pattern in reverse. preceding skips ancestors, so ul, main, body, and html never appear.
+
+
+My doubt came :following-sibling vs following: this is not very clear. Which element we are 
+starting from here and explain in detail and easy language
+
+Answer:
+following-sibling: stay in the same family
+-------------------------------------------
+
+A sibling is an element with the same parent. The parent of li[2] is the ul, so its siblings are the other items inside that ul: li[1] and li[3].
+
+following-sibling means “the siblings that come after me”, so the result is only li[3].
+
+The other elements fail the “same parent” test:
+
+p has a different parent (main), so it is not a sibling.
+footer has a different parent (body).
+span and a are inside li[2], so they are children, not siblings.
+
+
+following: everything after me in the page
+------------------------------------------
+following ignores families. It asks: “If I finish reading li[2] (I’ve passed its closing </li>), what 
+elements come next in the page source?” The answer is li[3], then p, then footer. 
+They live in different parents, but they all come later.
+
+It doesn’t include <span> and <a> because they sit inside li[2], before its closing tag.
+You haven’t finished li[2] when you read them, so they don’t count as “after”.
+
+
+Side by side
+------------
+Question	                  following-sibling::*	            following::*
+---------
+Same parent required?	      Yes                         	    No
+Selects from li[2]	        li[3]	                            li[3], p, footer
+Includes p?	                No	                              Yes
+Includes span, a?	          No                              	No (they’re inside li[2])
+
+"following-sibling" is always a subset of "following". Everything it finds, following finds too, plus more.
