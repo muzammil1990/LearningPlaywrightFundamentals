@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playwright getByRole: The 9 Options</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --text: #1d2433;
+    --muted: #5b6577;
+    --line: #d9dee7;
+    --accent: #1f5fbf;
+    --code-bg: #101827;
+    --code-text: #e6edf7;
+    --warn: #fff6e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f141d;
+      --surface: #171e2b;
+      --text: #e6eaf2;
+      --muted: #9aa5b8;
+      --line: #2a3446;
+      --accent: #6fa3f0;
+      --code-bg: #0a0f18;
+      --code-text: #e6edf7;
+      --warn: #2a2412;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    line-height: 1.65;
+    font-size: 17px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1, h2, table, code, pre { font-family: "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; }
+  h1 { font-size: 2rem; margin: 0 0 6px; line-height: 1.2; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  h2 { font-size: 1.3rem; margin: 40px 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
+  ul { padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; min-width: 680px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+  code { background: color-mix(in srgb, var(--accent) 12%, transparent); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+  pre { background: var(--code-bg); color: var(--code-text); padding: 16px 18px; border-radius: 8px; overflow-x: auto; font-size: 0.88rem; line-height: 1.55; margin: 8px 0 18px; }
+  pre code { background: none; padding: 0; color: inherit; }
+  .syntax { font-family: "Segoe UI", system-ui, sans-serif; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 6px; padding: 12px 18px; }
+  .callout { background: var(--warn); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin-top: 12px; }
+  @media (max-width: 600px) { body { font-size: 16px; } }
+  @media print { body { background: #fff; color: #000; } pre { white-space: pre-wrap; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Playwright getByRole: The 9 Options</h1>
+<p class="sub">A quick reference for the options object in <code>page.getByRole(role, options)</code>.</p>
+
+<div class="syntax">
+  <strong>Syntax:</strong> <code>page.getByRole(role, { name, exact, checked, disabled, expanded, pressed, selected, level, includeHidden })</code><br>
+  The role is required. All options are optional, and any state option you leave out does not filter anything.
+</div>
+
+<h2>The 9 options</h2>
+<div class="table-scroll">
+<table>
+  <thead><tr><th>Option</th><th>Type</th><th>What it does</th><th>Example</th></tr></thead>
+  <tbody>
+    <tr><td>name</td><td>string or RegExp</td><td>Matches the accessible name (button text, label, <code>aria-label</code>, and so on). The most used option.</td><td><code>{ name: 'Sign in' }</code></td></tr>
+    <tr><td>exact</td><td>boolean</td><td>Works with <code>name</code>. Default <code>false</code> means case-insensitive substring match. <code>true</code> means case-sensitive, whole-string match. Ignored when <code>name</code> is a RegExp.</td><td><code>{ name: 'Sign in', exact: true }</code></td></tr>
+    <tr><td>checked</td><td>boolean</td><td>Checked state of checkboxes, radios, and <code>aria-checked</code> elements.</td><td><code>{ checked: true }</code></td></tr>
+    <tr><td>disabled</td><td>boolean</td><td>Matches disabled (<code>true</code>) or enabled (<code>false</code>) elements.</td><td><code>{ disabled: false }</code></td></tr>
+    <tr><td>expanded</td><td>boolean</td><td>Matches <code>aria-expanded</code> state (accordions, dropdowns, tree items).</td><td><code>{ expanded: false }</code></td></tr>
+    <tr><td>pressed</td><td>boolean</td><td>Matches <code>aria-pressed</code> state of toggle buttons.</td><td><code>{ pressed: true }</code></td></tr>
+    <tr><td>selected</td><td>boolean</td><td>Matches <code>aria-selected</code> state (tabs, options).</td><td><code>{ selected: true }</code></td></tr>
+    <tr><td>level</td><td>number</td><td>Heading level, 1 to 6. Also works for other hierarchical roles.</td><td><code>{ level: 2 }</code></td></tr>
+    <tr><td>includeHidden</td><td>boolean</td><td>Default <code>false</code>, so elements hidden from the accessibility tree are skipped. <code>true</code> includes them.</td><td><code>{ includeHidden: true }</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Examples</h2>
+<pre><code>// name: partial, case-insensitive by default
+await page.getByRole('button', { name: 'sign' }).click();
+
+// exact name
+await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+
+// regex name
+await page.getByRole('button', { name: /sign (in|up)/i }).click();
+
+// state options
+await page.getByRole('checkbox', { name: 'Remember me', checked: false }).check();
+await expect(page.getByRole('button', { name: 'Submit', disabled: true })).toBeVisible();
+await page.getByRole('tab', { name: 'Settings', selected: false }).click();
+await page.getByRole('button', { name: 'Menu', expanded: false }).click();
+await page.getByRole('button', { name: 'Bold', pressed: true }).click();
+
+// heading level
+await expect(page.getByRole('heading', { name: 'Pricing', level: 2 })).toBeVisible();
+
+// include elements hidden from the accessibility tree
+await page.getByRole('dialog', { includeHidden: true });</code></pre>
+
+<h2>Tips</h2>
+<ul>
+  <li>If a locator doesn't find your element, check the role first. A clickable <code>&lt;div&gt;</code> with no <code>role</code> has no useful role, so <code>getByRole</code> can't see it. Use <code>getByText</code> or <code>getByTestId</code> there, or ask the developers to add proper semantics.</li>
+  <li>Combine options freely, for example <code>getByRole('button', { name: 'Save', disabled: false })</code>.</li>
+  <li>Because <code>name</code> is a substring match by default, <code>{ name: 'Save' }</code> also matches "Save as draft". Add <code>exact: true</code> when that causes strict-mode errors.</li>
+</ul>
+
+<div class="callout">
+  <strong>Remember:</strong> <code>name</code> and <code>exact</code> narrow by text, the five state options (<code>checked</code>, <code>disabled</code>, <code>expanded</code>, <code>pressed</code>, <code>selected</code>) narrow by state, <code>level</code> narrows headings, and <code>includeHidden</code> widens the search.
+</div>
+
+</div>
+</body>
+</html>
