@@ -12,12 +12,4 @@ test('Basic verify how to handle multiple elements ', async ({ page }) => {
     await page.pause();
     await page.getByTestId('forgotten-password-link').click();
 
-
-
-
-
-
-
-
-
 });
