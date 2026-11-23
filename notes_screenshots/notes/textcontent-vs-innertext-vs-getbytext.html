@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>textContent vs innerText vs getByText</title>
+<style>
+  :root {
+    --bg:#f7f8fa; --surface:#fff; --text:#1d2433; --muted:#5b6577; --line:#d9dee7; --accent:#1f5fbf;
+    --code-bg:#101827; --code-text:#e6edf7; --warn:#fff6e0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0f141d; --surface:#171e2b; --text:#e6eaf2; --muted:#9aa5b8; --line:#2a3446; --accent:#6fa3f0;
+      --code-bg:#0a0f18; --code-text:#e6edf7; --warn:#2a2412;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:Georgia,"Iowan Old Style","Times New Roman",serif; line-height:1.65; font-size:17px; }
+  .wrap { max-width:900px; margin:0 auto; padding:32px 20px 80px; }
+  h1,h2,table,code,pre { font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif; }
+  h1 { font-size:2rem; margin:0 0 6px; line-height:1.2; }
+  .sub { color:var(--muted); margin:0 0 24px; }
+  h2 { font-size:1.3rem; margin:40px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); }
+  ul { padding-left:22px; }
+  li { margin-bottom:6px; }
+  .ts { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); margin:10px 0 16px; }
+  table { border-collapse:collapse; width:100%; font-size:0.93rem; min-width:640px; }
+  th,td { text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:color-mix(in srgb,var(--accent) 10%,var(--surface)); }
+  tr:last-child td { border-bottom:none; }
+  td:first-child { font-weight:600; }
+  code { background:color-mix(in srgb,var(--accent) 12%,transparent); padding:1px 5px; border-radius:4px; font-size:0.9em; }
+  pre { background:var(--code-bg); color:var(--code-text); padding:15px 18px; border-radius:8px; overflow-x:auto; font-size:0.86rem; line-height:1.55; margin:8px 0 18px; }
+  pre code { background:none; padding:0; color:inherit; }
+  .box { background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:6px; padding:12px 18px; margin:0 0 14px; }
+  .note { background:var(--warn); border:1px solid var(--line); border-radius:8px; padding:12px 18px; margin:14px 0; }
+  @media (max-width:600px) { body { font-size:16px; } }
+  @media print { body { background:#fff; color:#000; } pre { white-space:pre-wrap; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>textContent vs innerText vs getByText</h1>
+<p class="sub">Playwright: reading text vs finding elements by text.</p>
+
+<div class="box">
+  <code>textContent()</code> and <code>innerText()</code> <strong>read</strong> text from an element you already found.<br>
+  <code>getByText()</code> <strong>finds</strong> an element by its text.<br>
+  In everyday tests you often use them together.
+</div>
+
+<h2>Side by side</h2>
+<div class="ts"><table>
+<thead><tr><th></th><th><code>textContent()</code></th><th><code>innerText()</code></th><th><code>getByText()</code></th></tr></thead>
+<tbody>
+<tr><td>Job</td><td>Read text</td><td>Read text</td><td>Find an element by text</td></tr>
+<tr><td>Called on</td><td>A locator</td><td>A locator</td><td><code>page</code> or a locator</td></tr>
+<tr><td>Returns</td><td><code>string | null</code></td><td><code>string</code></td><td>A locator, not text</td></tr>
+<tr><td>Text it looks at</td><td>Raw DOM text</td><td>Rendered text (what the user sees)</td><td>Raw DOM text, like <code>textContent</code></td></tr>
+<tr><td>Hidden text (<code>display:none</code>)</td><td>Included</td><td>Excluded</td><td>Can match it, but actions like <code>click()</code> wait for it to become visible</td></tr>
+<tr><td><code>&lt;script&gt;</code> and <code>&lt;style&gt;</code> text</td><td>Included</td><td>Excluded</td><td>Skipped</td></tr>
+<tr><td>Whitespace</td><td>Raw, exactly as in the HTML source</td><td>Cleaned up the way the browser displays it</td><td>Normalized (extra spaces and line breaks collapsed)</td></tr>
+<tr><td><code>text-transform: uppercase</code></td><td>Ignored</td><td>Applied</td><td>Ignored. It matches the original DOM text.</td></tr>
+<tr><td>Case sensitivity</td><td>Not applicable</td><td>Not applicable</td><td>Case-insensitive by default</td></tr>
+<tr><td>Matching style</td><td>Not applicable</td><td>Not applicable</td><td>Substring by default. <code>exact: true</code> means whole-string, case-sensitive. A RegExp also works.</td></tr>
+<tr><td>Waiting</td><td>Waits for the element to exist</td><td>Waits for the element to exist</td><td>Lazy, auto-retrying locator</td></tr>
+<tr><td>Multiple matches</td><td>Strict mode error</td><td>Strict mode error</td><td>Strict mode error if you then act on it</td></tr>
+<tr><td>Speed</td><td>Slightly faster</td><td>Slightly slower (browser works out layout)</td><td>Not applicable</td></tr>
+</tbody></table></div>
+
+<h2>Example</h2>
+<pre><code>&lt;div id="box"&gt;
+  Hello &lt;span style="display:none"&gt;Secret&lt;/span&gt;
+  &lt;b class="shout" style="text-transform: uppercase"&gt;world&lt;/b&gt;
+&lt;/div&gt;
+&lt;button&gt;Sign in&lt;/button&gt;
+&lt;button&gt;Sign in with Google&lt;/button&gt;</code></pre>
+<pre><code>// READ text from an element you've already located
+await page.locator('#box').textContent();  // "\n  Hello Secret\n  world\n"
+await page.locator('#box').innerText();    // "Hello WORLD"
+
+// FIND an element by its text
+page.getByText('hello');                    // matches #box (case-insensitive, partial)
+page.getByText('Sign in');                  // matches BOTH buttons (partial match)
+page.getByText('Sign in', { exact: true }); // matches only the first button
+page.getByText(/^sign in$/i);               // same idea with a regex</code></pre>
+
+<h2>Using them together</h2>
+<pre><code>// Find with getByText, then act on it
+await page.getByText('Add to cart').click();
+
+// Assert on found text (preferred, auto-retries)
+await expect(page.getByText('Order placed')).toBeVisible();
+
+// Find a container, then read its text
+const msg = await page.locator('.alert').innerText();
+expect(msg).toContain('Saved');
+
+// Compare rendered text in an assertion
+await expect(page.locator('#box')).toHaveText('Hello WORLD', { useInnerText: true });</code></pre>
+
+<h2>Which to use</h2>
+<div class="ts"><table>
+<thead><tr><th>Goal</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>Click or check that an element with certain text exists</td><td><code>getByText()</code></td></tr>
+<tr><td>Read visible text to store or compare in your own code</td><td><code>innerText()</code></td></tr>
+<tr><td>Read raw or hidden text, or text inside <code>&lt;script&gt;</code></td><td><code>textContent()</code></td></tr>
+<tr><td>Assert text with automatic retry</td><td><code>expect(locator).toHaveText()</code></td></tr>
+</tbody></table></div>
+
+<h2>Cautions</h2>
+<ul>
+  <li><code>getByText()</code> is a substring match by default, so short text can match several elements. Use <code>exact: true</code> or a more specific locator.</li>
+  <li>It matches the smallest element that contains the text, so you usually get the inner <code>&lt;span&gt;</code> rather than its container.</li>
+  <li>For buttons, links, and inputs, <code>getByRole()</code> with a <code>name</code> is usually better than <code>getByText()</code>, because it also checks the element's role.</li>
+  <li>Because <code>textContent()</code> can return <code>null</code>, TypeScript may ask you to handle that case, for example <code>(await box.textContent()) ?? ''</code>.</li>
+  <li><code>allTextContents()</code> and <code>allInnerTexts()</code> do the same as the single versions for every element a locator matches, and return an array.</li>
+</ul>
+
+</div>
+</body>
+</html>
